@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>名画座スケジュール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* 上映時刻を縦軸にした「劇場の掲示板」。日付タブ＋時間順/館別。 */
+:root{
+  --bg:#f3f1ec; --surface:#fffdf8; --ink:#1d1f24; --muted:#6b6b70; --line:#dedad1;
+  --accent:#b3261e; --accent-soft:#f6e3df; --past:#a7a6a3; --sat:#2f6db5;
+  --display:"Zen Old Mincho","Hiragino Mincho ProN",serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16171a; --surface:#1f2024; --ink:#ecebe7; --muted:#9c9ba0; --line:#33343a;
+  --accent:#ef6a5c; --accent-soft:#3a2321; --past:#5d5d62; --sat:#7fa8e0; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#16171a; --surface:#1f2024; --ink:#ecebe7; --muted:#9c9ba0; --line:#33343a;
+  --accent:#ef6a5c; --accent-soft:#3a2321; --past:#5d5d62; --sat:#7fa8e0; color-scheme:dark;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6}
+.wrap{max-width:960px;margin:0 auto;padding:28px 16px 64px}
+header{display:grid;gap:6px;margin-bottom:16px}
+h1{font-family:var(--display);font-size:clamp(26px,5vw,36px);margin:0;letter-spacing:.04em;text-wrap:balance}
+h1 small{font-family:var(--body);font-size:.5em;font-weight:500;color:var(--muted);margin-left:.6em;letter-spacing:0}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.days{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:thin}
+.days button{font:inherit;flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer;display:grid;line-height:1.25;text-align:center;min-width:52px}
+.days button b{font-family:var(--mono);font-size:15px;font-weight:500}
+.days button small{font-size:11px;color:var(--muted)}
+.days button.sat small{color:var(--sat)}
+.days button.sun small{color:var(--accent)}
+.days button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.days button[aria-pressed="true"] small{color:inherit}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:18px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:14px;border:0;background:none;color:var(--ink);padding:6px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.bar input[type=search]{font:inherit;font-size:14px;flex:1 1 180px;min-width:0;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.bar label{font-size:14px;display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-size:13px;color:var(--muted);margin-left:auto}
+
+/* 時間順 */
+.hour{display:grid;grid-template-columns:56px 1fr;gap:0 14px;border-top:1px solid var(--line);padding:10px 0}
+.hour > h2{font-family:var(--mono);font-size:20px;margin:0;color:var(--muted);font-weight:500}
+.hour.now > h2{color:var(--accent)}
+.rows{display:grid;gap:4px}
+.row{display:grid;grid-template-columns:96px 1fr minmax(0,170px);gap:10px;align-items:baseline;padding:5px 8px;border-radius:6px}
+.row:hover{background:var(--surface)}
+.t{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.t .end{color:var(--muted);font-size:12px}
+.title{font-weight:700}
+.note{display:inline-block;font-size:11.5px;color:var(--muted);font-weight:400;margin-left:6px}
+.th{font-size:13px;color:var(--muted);text-align:right;overflow-wrap:anywhere}
+.row.past{color:var(--past)}
+.row.past .title{font-weight:500}
+.row.soon .t{color:var(--accent)}
+.row.soon{background:var(--accent-soft)}
+
+/* 館別 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:8px;align-content:start}
+.card h2{font-size:17px;margin:0;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card h2 a{color:inherit;text-decoration:none}
+.card h2 a:hover{text-decoration:underline}
+.area{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}
+.feat{font-size:12.5px;color:var(--accent);margin:0}
+.card ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.card li{display:grid;grid-template-columns:52px 1fr;gap:8px;font-size:14px}
+.card li.past{color:var(--past)}
+.card .empty{color:var(--muted);font-size:13px;margin:0}
+.cnote{font-size:12px;color:var(--muted);margin:0;border-top:1px dashed var(--line);padding-top:6px}
+.warn{color:var(--accent)}
+footer{margin-top:36px;font-size:12.5px;color:var(--muted);display:grid;gap:4px}
+[hidden]{display:none!important}
+@media (max-width:560px){
+  .row{grid-template-columns:78px 1fr}
+  .th{grid-column:2;text-align:left;margin-top:-4px}
+  .hour{grid-template-columns:40px 1fr;gap:0 8px}
+  .hour > h2{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>名画座スケジュール<small id="daylabel"></small></h1>
+  <p class="sub" id="sub"></p>
+</header>
+
+<nav class="days" id="days" aria-label="日付"></nav>
+<div class="bar">
+  <div class="seg" role="group" aria-label="表示の切り替え">
+    <button type="button" id="v-time" aria-pressed="true">時間順</button>
+    <button type="button" id="v-theater" aria-pressed="false">館別</button>
+  </div>
+  <input type="search" id="q" placeholder="作品名・館名で絞り込み" aria-label="作品名・館名で絞り込み">
+  <label for="upcoming" id="upwrap"><input type="checkbox" id="upcoming">これからの回だけ</label>
+  <span class="count" id="count"></span>
+</div>
+
+<main id="time-view"></main>
+<main id="theater-view" class="grid" hidden></main>
+
+<footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = /*DATA*/null;
+const WD = "日月火水木金土";
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const jstNow = () => new Date(Date.now() + 9 * 3600e3);
+const todayStr = () => jstNow().toISOString().slice(0, 10);
+const wd = d => new Date(d + "T00:00:00Z").getUTCDay();
+const md = d => `${+d.slice(5, 7)}/${+d.slice(8, 10)}`;
+
+const T = DATA.theaters;
+const all = [];
+T.forEach((th, i) => th.screenings.forEach(s => {
+  const extra = [s.screen, s.note, s.program && s.program !== s.title ? s.program : ""].filter(Boolean).join("・");
+  all.push({ ...s, extra, th: th.name, area: th.area, i, min: toMin(s.start) });
+}));
+
+const today = todayStr();
+const dates = [...new Set(all.map(x => x.date))].filter(d => d >= today).sort().slice(0, 14);
+if (!dates.includes(today)) dates.unshift(today);
+
+const state = { view: "time", q: "", upcoming: false, day: today };
+try { if (localStorage.getItem("meigaza-view") === "theater") state.view = "theater"; } catch (e) {}
+
+const gen = new Date(Date.parse(DATA.generatedAt) + 9 * 3600e3);
+document.getElementById("sub").textContent =
+  `東京${T.length}館の上映回。${gen.getUTCMonth() + 1}/${gen.getUTCDate()} ${String(gen.getUTCHours()).padStart(2, "0")}:${String(gen.getUTCMinutes()).padStart(2, "0")} に各館の公式サイトから自動で集めました。変更や満席があるので、行く前に公式サイトを確認してください。`;
+
+function nowMin() {
+  const t = todayStr();
+  if (state.day !== t) return state.day < t ? 99999 : -1;
+  const d = jstNow();
+  return d.getUTCHours() * 60 + d.getUTCMinutes();
+}
+function match(x) {
+  if (!state.q) return true;
+  return (x.title + " " + x.th + " " + x.area + " " + x.extra).toLowerCase().includes(state.q.toLowerCase());
+}
+function status(x, now) {
+  if (now < 0) return "";
+  if (x.min < now) return "past";
+  if (x.min - now <= 60) return "soon";
+  return "";
+}
+const noteHtml = x => x.extra ? `<span class="note">${esc(x.extra)}</span>` : "";
+
+function renderDays() {
+  document.getElementById("days").innerHTML = dates.map(d => {
+    const w = wd(d);
+    return `<button type="button" data-d="${d}" aria-pressed="${d === state.day}" class="${w === 6 ? "sat" : w === 0 ? "sun" : ""}"><b>${md(d)}</b><small>${d === today ? "今日" : WD[w]}</small></button>`;
+  }).join("");
+}
+
+function render() {
+  const now = nowMin();
+  const isToday = state.day === todayStr();
+  document.getElementById("upwrap").hidden = !isToday;
+  document.getElementById("daylabel").textContent =
+    `${+state.day.slice(0, 4)}年${+state.day.slice(5, 7)}月${+state.day.slice(8, 10)}日（${WD[wd(state.day)]}）`;
+  const list = all
+    .filter(x => x.date === state.day && match(x) && !(isToday && state.upcoming && x.min < now))
+    .sort((a, b) => a.min - b.min || a.i - b.i);
+  document.getElementById("count").textContent = list.length + " 回";
+
+  const byHour = new Map();
+  list.forEach(x => { const h = Math.floor(x.min / 60); (byHour.get(h) || byHour.set(h, []).get(h)).push(x); });
+  document.getElementById("time-view").innerHTML = [...byHour].map(([h, xs]) => `
+    <section class="hour${isToday && Math.floor(now / 60) === h ? " now" : ""}">
+      <h2>${h}時</h2>
+      <div class="rows">${xs.map(x => `
+        <div class="row ${status(x, now)}">
+          <span class="t">${x.start}${x.end ? `<span class="end">–${x.end}</span>` : ""}</span>
+          <span class="title">${esc(x.title)}${noteHtml(x)}</span>
+          <span class="th">${esc(x.th)}・${esc(x.area)}</span>
+        </div>`).join("")}</div>
+    </section>`).join("") || `<p class="sub">条件に合う上映回はありません。</p>`;
+
+  document.getElementById("theater-view").innerHTML = T.map((th, i) => {
+    const xs = list.filter(x => x.i === i);
+    const thHit = !state.q || (th.name + th.area).toLowerCase().includes(state.q.toLowerCase());
+    if (!xs.length && !thHit) return "";
+    return `<article class="card">
+      <h2><a href="${esc(th.url)}" target="_blank" rel="noopener">${esc(th.name)}</a><span class="area">${esc(th.area)}</span></h2>
+      ${xs.length
+        ? `<ul>${xs.map(x => `<li class="${status(x, now) === "past" ? "past" : ""}"><span class="t">${x.start}</span><span>${esc(x.title)}${noteHtml(x)}</span></li>`).join("")}</ul>`
+        : `<p class="empty">${state.q ? "条件に合う回なし" : "この日の上映回は掲載されていません"}</p>`}
+      ${!th.ok ? `<p class="cnote warn">最新の取得に失敗（${esc(th.error)}）。${th.screenings.length ? "前回のデータを表示しています。" : ""}</p>` : ""}
+    </article>`;
+  }).join("");
+
+  document.getElementById("time-view").hidden = state.view !== "time";
+  document.getElementById("theater-view").hidden = state.view !== "theater";
+  document.getElementById("v-time").setAttribute("aria-pressed", state.view === "time");
+  document.getElementById("v-theater").setAttribute("aria-pressed", state.view === "theater");
+}
+
+const failed = T.filter(t => !t.ok);
+document.getElementById("foot").innerHTML =
+  `<span>出典は各館の公式サイト（館別表示の館名から開けます）。終映時刻は掲載がある館のみ。</span>` +
+  (failed.length ? `<span class="warn">取得に失敗した館: ${failed.map(t => esc(t.name)).join("、")}</span>` : "");
+
+function setView(v) { state.view = v; try { localStorage.setItem("meigaza-view", v); } catch (e) {} render(); }
+document.getElementById("v-time").addEventListener("click", () => setView("time"));
+document.getElementById("v-theater").addEventListener("click", () => setView("theater"));
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value.trim(); render(); });
+document.getElementById("upcoming").addEventListener("change", e => { state.upcoming = e.target.checked; render(); });
+document.getElementById("days").addEventListener("click", e => {
+  const b = e.target.closest("button[data-d]");
+  if (!b) return;
+  state.day = b.dataset.d;
+  renderDays();
+  render();
+});
+renderDays();
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>

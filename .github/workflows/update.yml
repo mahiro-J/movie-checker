@@ -1,0 +1,39 @@
+# 毎朝6時(日本時間)に全館のスケジュールを集めてページを作り直す
+name: update
+on:
+  schedule:
+    - cron: "0 21 * * *" # UTC 21:00 = JST 6:00
+  workflow_dispatch: {} # 手動実行ボタン
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency: update
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run update
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # Morc阿佐ヶ谷の画像読み取り用
+      # 集めたデータ(と Morc の読み取り結果キャッシュ)を保存して、次回の失敗時の予備にする
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "data: $(date -u +%F)"
+          git push
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-05T08:57:03.869Z",
+ "generatedAt": "2026-11-05T09:00:13.722Z",
  "theaters": [
   {
    "id": "waseda",
@@ -7,7 +7,7 @@
    "area": "高田馬場",
    "url": "http://wasedashochiku.co.jp/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:22.829Z",
+   "fetchedAt": "2026-11-05T08:59:36.346Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -912,7 +912,7 @@
    "area": "池袋",
    "url": "https://www.shin-bungeiza.com/schedule",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:23.531Z",
+   "fetchedAt": "2026-11-05T08:59:37.078Z",
    "screenings": [
     {
      "date": "2026-11-06",
@@ -1721,7 +1721,7 @@
    "area": "目黒",
    "url": "http://www.okura-movie.co.jp/meguro_cinema/now_showing.html",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:24.121Z",
+   "fetchedAt": "2026-11-05T08:59:37.636Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -2417,7 +2417,7 @@
    "area": "阿佐ヶ谷",
    "url": "http://www.laputa-jp.com/laputa/main/index.html",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:33.137Z",
+   "fetchedAt": "2026-11-05T08:59:41.401Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -4410,7 +4410,7 @@
    "area": "渋谷",
    "url": "http://www.cinemavera.com/schedule.html",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:35.565Z",
+   "fetchedAt": "2026-11-05T08:59:44.305Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -4912,7 +4912,7 @@
    "area": "神保町",
    "url": "https://www.shogakukan.co.jp/jinbocho-theater/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:36.157Z",
+   "fetchedAt": "2026-11-05T08:59:44.501Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -4970,7 +4970,7 @@
    "area": "下高井戸",
    "url": "https://shimotakaidocinema.com/schedule/schedule.html",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:37.192Z",
+   "fetchedAt": "2026-11-05T08:59:45.628Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -6620,7 +6620,7 @@
    "area": "京橋",
    "url": "https://www.nfaj.go.jp/calendar/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:38.041Z",
+   "fetchedAt": "2026-11-05T08:59:46.513Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -6729,7 +6729,7 @@
    "area": "御茶ノ水",
    "url": "https://athenee.net/culturalcenter/schedule/schedule.html",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:39.407Z",
+   "fetchedAt": "2026-11-05T08:59:47.889Z",
    "screenings": [
     {
      "date": "2026-11-06",
@@ -6920,7 +6920,7 @@
    "area": "飯田橋",
    "url": "https://culture.institutfrancais.jp/event?taxonomy=cinema&host=tokyo",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:40.911Z",
+   "fetchedAt": "2026-11-05T08:59:49.983Z",
    "screenings": [
     {
      "date": "2026-11-27",
@@ -7003,7 +7003,7 @@
    "area": "大森",
    "url": "https://ttcg.jp/cineka_omori/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:41.432Z",
+   "fetchedAt": "2026-11-05T08:59:50.496Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -7895,7 +7895,7 @@
    "area": "神保町",
    "url": "https://cinemalice.theater/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:42.173Z",
+   "fetchedAt": "2026-11-05T08:59:51.486Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -8654,7 +8654,7 @@
    "area": "渋谷",
    "url": "http://www.eurospace.co.jp/schedule/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:42.759Z",
+   "fetchedAt": "2026-11-05T08:59:52.212Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -9239,7 +9239,7 @@
    "area": "渋谷",
    "url": "https://www.imageforum.co.jp/theatre/schedule/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:44.195Z",
+   "fetchedAt": "2026-11-05T08:59:54.066Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -10026,7 +10026,7 @@
    "area": "下北沢",
    "url": "https://k2-cinema.com/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:47.317Z",
+   "fetchedAt": "2026-11-05T08:59:56.712Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -10618,7 +10618,7 @@
    "area": "渋谷",
    "url": "https://www.bunkamura.co.jp/cinema_miyashita/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:50.459Z",
+   "fetchedAt": "2026-11-05T08:59:59.880Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -10823,7 +10823,7 @@
    "area": "菊川",
    "url": "https://stranger.jp/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:54.784Z",
+   "fetchedAt": "2026-11-05T09:00:04.086Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -11109,7 +11109,7 @@
    "area": "北千住",
    "url": "https://www.art-center.jp/tokyo/bluestudio/schedule.html",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:56.084Z",
+   "fetchedAt": "2026-11-05T09:00:05.197Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -11605,7 +11605,7 @@
    "area": "新宿",
    "url": "https://www.ks-cinema.com/schedule/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:56:59.266Z",
+   "fetchedAt": "2026-11-05T09:00:08.809Z",
    "screenings": [
     {
      "date": "2026-11-05",
@@ -11921,7 +11921,7 @@
    "area": "東中野",
    "url": "https://pole2.co.jp/",
    "ok": true,
-   "fetchedAt": "2026-11-05T08:57:03.869Z",
+   "fetchedAt": "2026-11-05T09:00:13.722Z",
    "screenings": [
     {
      "date": "2026-11-05",

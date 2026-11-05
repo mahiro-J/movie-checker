@@ -1,3 +1,4 @@
+import * as cheerio from "cheerio";
 import { fetchText, htmlToLines, z2h, ymd, plusMinutes, joinTitles, type Theater, type Screening } from "../lib.ts";
 
 // アンスティチュ・フランセのイベント一覧(WordPress API)から「映画」×「東京」の最近のものを取り、
@@ -11,12 +12,27 @@ export const institut: Theater = {
   area: "飯田橋",
   url: "https://culture.institutfrancais.jp/event?taxonomy=cinema&host=tokyo",
   async scrape({ today }) {
-    const events: { link: string }[] = JSON.parse(await fetchText(API));
     const out: Screening[] = [];
-    for (const e of events) out.push(...parseEvent(htmlToLines(await fetchText(e.link)).map(z2h), today));
+    for (const link of await eventLinks()) out.push(...parseEvent(htmlToLines(await fetchText(link)).map(z2h), today));
     return out.filter((s) => s.date >= today);
   },
 };
+
+// API は GitHub のサーバーからだと拒否される(403)ので、そのときは一覧ページのリンクを拾う
+async function eventLinks(): Promise<string[]> {
+  try {
+    return (JSON.parse(await fetchText(API)) as { link: string }[]).map((e) => e.link);
+  } catch {
+    const list = "https://culture.institutfrancais.jp/event?taxonomy=cinema&host=tokyo";
+    const $ = cheerio.load(await fetchText(list));
+    const links = new Set<string>();
+    $("a[href]").each((_, a) => {
+      const u = new URL($(a).attr("href")!, list);
+      if (/^\/event\/[^/]+$/.test(u.pathname) && !u.pathname.startsWith("/event/page")) links.add(u.origin + u.pathname);
+    });
+    return [...links].slice(0, 15);
+  }
+}
 
 const INFO = /^[（(].*\d{4}年.*\d+分/; // 「（1958年／…／77分）」
 const SHOW = /^(\d{1,2})\.(\d{1,2})\s*[（(].[）)]\s*(\d{1,2}:\d{2})\s*(.*)$/;

@@ -26,7 +26,9 @@ export const nfaj: Theater = {
             const rest = clean($(li).text().replace(t, "").replace(title, ""));
             const rm = /計?(\d+)分/.exec(rest);
             const start = hhmm(t);
-            out.push({ date, start, end: rm ? plusMinutes(start, +rm[1]) : undefined, title, note: rest || undefined, screen, program });
+            // 備考は「122分・1955・成瀨巳喜男」の形。3つ目が監督
+            const director = /\d+分・\d{4}・(.+)$/.exec(rest)?.[1]?.replace(/・/g, "、");
+            out.push({ date, start, end: rm ? plusMinutes(start, +rm[1]) : undefined, title, note: rest || undefined, screen, program, director });
           });
       });
     });

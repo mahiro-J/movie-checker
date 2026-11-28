@@ -74,7 +74,7 @@ function parseFixedTime(lines: string[], today: string) {
   for (let i = 0; i < lines.length - 1; i++) {
     if (!/^\d{1,2}月\d{1,2}日/.test(lines[i]) || /休館|〜.*\d{4}年/.test(lines[i])) continue;
     const title = lines[i + 1];
-    if (!title || /^\d{4}年/.test(title)) continue;
+    if (!title || /^\d{4}年/.test(title) || /^(ゲスト|トーク|登壇)/.test(title)) continue; // トークだけの回は除く
     for (const date of parseJpDates(lines[i], today)) if (!closed.has(date)) res.push({ date, start, title });
   }
   return res;

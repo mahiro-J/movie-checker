@@ -1,4 +1,4 @@
-import { fetchDom, hhmm, ymd, clean, type Theater, type Screening } from "../lib.ts";
+import { fetchDom, htmlToLines, directorsFromText, hhmm, ymd, clean, type Theater, type Screening } from "../lib.ts";
 
 // 番組ブロック(id="d2026-11-01-1")の中に「11/1（日）」「2（月）」… の見出しと上映回
 export const bungeiza: Theater = {
@@ -40,6 +40,7 @@ export const bungeiza: Theater = {
           }
         });
     });
+    directorsFromText(out, htmlToLines($.html()));
     return out;
   },
 };

@@ -1,4 +1,4 @@
-import { fetchDom, hhmm, ymd, dateRange, clean, type Theater, type Screening } from "../lib.ts";
+import { fetchDom, fetchText, htmlToLines, directorsFromText, hhmm, ymd, dateRange, clean, type Theater, type Screening } from "../lib.ts";
 
 // 表の見出しが「10/31(土)～11/6(金)」や「11/14(土)」、行が作品、セルが上映時刻
 export const waseda: Theater = {
@@ -35,6 +35,16 @@ export const waseda: Theater = {
             });
         });
     });
+    directorsFromText(out, htmlToLines($.html()));
+    // 監督はトップからリンクされた作品ページ(「■監督・脚本 ○○」)に書いてある
+    const pages = new Set<string>();
+    $("a[href*='/archives/schedule/']").each((_, a) => {
+      pages.add(new URL($(a).attr("href")!, "https://wasedashochiku.co.jp/").href.replace(/#.*$/, ""));
+    });
+    for (const p of [...pages].slice(0, 6)) {
+      const html = await fetchText(p).catch(() => "");
+      if (html) directorsFromText(out, htmlToLines(html), 30);
+    }
     return out;
   },
 };

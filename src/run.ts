@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { todayJST, type Screening, type Ctx } from "./lib.ts";
 import { theaters } from "./theaters/index.ts";
+import { fillDirectors } from "./directors.ts";
 
 type TheaterResult = {
   id: string;
@@ -52,6 +53,9 @@ for (const th of theaters) {
 
 // 昨日より前の回は捨てる
 for (const r of results) r.screenings = r.screenings.filter((s) => s.date >= today);
+
+// 監督を埋める(館のデータにないものは映画.comで調べる)
+await fillDirectors(results.flatMap((r) => r.screenings), today);
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify({ generatedAt: new Date().toISOString(), theaters: results }, null, 1));

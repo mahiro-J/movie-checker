@@ -9,6 +9,8 @@ export type Screening = {
   note?: string; // トーク付き、35mm など
   screen?: string; // スクリーン名(複数ある館だけ)
   program?: string; // 特集名
+  director?: string; // 監督(複数は「、」区切り)
+  year?: number; // 製作年(館に書いてあれば。監督を調べるときに同名の別作品と見分ける)
 };
 
 export type Theater = {
@@ -127,4 +129,63 @@ export function clean(s: string): string {
 export function joinTitles(titles: string[]): string {
   if (titles.length <= 3) return titles.join(" / ");
   return `${titles.slice(0, 3).join(" / ")} ほか${titles.length - 3}本`;
+}
+
+/**
+ * 館のページの文章から監督を拾う。作品名が出てくる行のすぐ後ろ(数行以内)にある
+ * 「監督：○○」「監督・脚本：○○」を、その作品の監督とする。見つかったものは上書きしない。
+ */
+export function directorsFromText(list: Screening[], lines: string[], within = 8): void {
+  const flat = (s: string) =>
+    z2h(s)
+      .replace(/^\s*\d{1,2}[.．、]\s*/, "") // 「1.『破れ太鼓』」の番号
+      .replace(/[\s　『』「」]/g, "");
+  const keyOf = (t: string) => flat(t.replace(/【[^】]*】|＜[^＞]*＞|［[^］]*］|[（(][^）)]*[）)]|🎥.*$|\s+\d+K.*$/g, ""));
+  const keys = new Set(list.map((s) => keyOf(s.title)).filter((k) => k.length >= 1));
+  // 題名だけの行(年や上映時間が後ろに付く程度まで)を見出しとみなす
+  const isHead = (l: string, key: string) => l === key || (l.startsWith(key) && l.length <= key.length + 16);
+  const flats = lines.map(flat);
+  const found = new Map<string, string | undefined>();
+  for (const s of list) {
+    if (s.director) continue;
+    if (!found.has(s.title)) {
+      const key = keyOf(s.title);
+      let dir: string | undefined;
+      const DIR = /監督(?:[・\/／][^：:\n]{1,15})?\s*[：:]\s*(.+)$/;
+      if (key.length >= 1) {
+        // 1) 「題名（1955・米/106分）監督：○○ 出演：…」のように同じ行にあるもの
+        for (let i = 0; i < lines.length && !dir; i++) {
+          if (!flats[i].startsWith(key)) continue;
+          const m = DIR.exec(z2h(lines[i]));
+          if (m) dir = personName(m[1]);
+        }
+        // 2) 題名の行の数行下にあるもの
+        for (let i = 0; i < lines.length && !dir; i++) {
+          if (!isHead(flats[i], key)) continue;
+          for (let j = i + 1; j < Math.min(lines.length, i + within) && !dir; j++) {
+            // 別の作品の題名で始まる行まで来たら、そこから先は別の作品の情報
+            if ([...keys].some((k) => k !== key && !key.startsWith(k) && flats[j].startsWith(k))) break;
+            const l = z2h(lines[j]);
+            const m = DIR.exec(l) ?? /^■?監督(?:・\S{1,10})?\s+(\S.*)$/.exec(l); // 「■監督・脚本 ジャファル・パナヒ」
+            if (m) dir = personName(m[1]);
+            // 「監督」の行の次の行に名前(神保町シアター)
+            else if (/^■?監督(?:・\S{1,10})?$/.test(l) && lines[j + 1]) dir = personName(z2h(lines[j + 1]));
+          }
+        }
+      }
+      found.set(s.title, dir);
+    }
+    const d = found.get(s.title);
+    if (d) s.director = d;
+  }
+}
+
+/** 「ヨン・サンホ『新感染』」「濱口竜介 出演：…」→ 名前だけ。複数は「、」区切り */
+function personName(s: string): string | undefined {
+  const name = s
+    .split(/[『「（(]|\s*[／\/|｜]?\s*(?:出演|共演|声の出演|声|脚本|撮影|原作|音楽|製作|主演)\s*[:：]|\s(?:出演|脚本|撮影|原作|音楽|製作)/)[0]
+    .replace(/[、,・]\s*$/, "")
+    .trim();
+  if (!name || name.length > 40) return undefined;
+  return name.split(/\s*[、,]\s*|\s+[&＆]\s+/).filter(Boolean).join("、");
 }

@@ -1,4 +1,6 @@
-import { fetchText, hhmm, type Theater, type Screening } from "../lib.ts";
+import { fetchText, htmlToLines, directorsFromText, hhmm, type Theater, type Screening } from "../lib.ts";
+
+const BASE = "https://www.shogakukan.co.jp/jinbocho-theater/";
 
 // ページは画面側で組み立てているが、元データが schedule-data.js にそのまま入っている
 export const jinbocho: Theater = {
@@ -17,12 +19,21 @@ export const jinbocho: Theater = {
       else if (js[j] === "}" && --depth === 0) { end = j + 1; break; }
     }
     const data = JSON.parse(js.slice(start, end)) as {
-      days: { date: string; closed: boolean; slots: { time: string; endTime?: string; title: string }[] }[];
+      days: { date: string; closed: boolean; slots: { time: string; endTime?: string; title: string; url?: string }[] }[];
     };
     const out: Screening[] = [];
+    const pages = new Set<string>();
     for (const d of data.days) {
       if (d.closed) continue;
-      for (const s of d.slots) out.push({ date: d.date, start: hhmm(s.time), end: s.endTime ? hhmm(s.endTime) : undefined, title: s.title });
+      for (const s of d.slots) {
+        out.push({ date: d.date, start: hhmm(s.time), end: s.endTime ? hhmm(s.endTime) : undefined, title: s.title });
+        if (s.url) pages.add(s.url.replace(/#.*$/, ""));
+      }
+    }
+    // 監督は特集ページの作品紹介(「監督」の次の行)から
+    for (const p of pages) {
+      const html = await fetchText(new URL(p, BASE).href).catch(() => "");
+      if (html) directorsFromText(out, htmlToLines(html));
     }
     return out;
   },

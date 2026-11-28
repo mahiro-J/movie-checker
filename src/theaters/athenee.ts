@@ -1,4 +1,4 @@
-import { fetchText, htmlToLines, z2h, plusMinutes, joinTitles, type Theater, type Screening } from "../lib.ts";
+import { fetchText, htmlToLines, directorsFromText, z2h, plusMinutes, joinTitles, type Theater, type Screening } from "../lib.ts";
 import * as cheerio from "cheerio";
 
 // トップページに並ぶ特集ページを1つずつ開き、「■上映スケジュール」の欄を読む。
@@ -17,13 +17,18 @@ export const athenee: Theater = {
       pages.add(new URL($(a).attr("href")!, TOP).href.replace("://www.", "://"));
     });
     const out: Screening[] = [];
-    for (const url of pages) out.push(...parseProgram(htmlToLines(await fetchText(url)).map(z2h)));
+    for (const url of pages) {
+      const lines = htmlToLines(await fetchText(url)).map(z2h);
+      const list = parseProgram(lines);
+      directorsFromText(list, lines, 12);
+      out.push(...list);
+    }
     return out.filter((s) => s.date >= today);
   },
 };
 
 const BRACKET = /［[^］]*］?/g; // ［35分］［120分（予定）］［8分） など
-const SKIP = /^(トーク|特別講義|シンポジウム|講演|講座|上映前)/;
+const SKIP = /^(トーク|特別講義|シンポジウム|講演|講座|上映前|交流会)/;
 
 function parseProgram(lines: string[]): Screening[] {
   const program = lines[0];

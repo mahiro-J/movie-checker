@@ -2,7 +2,7 @@ import { addDays, type Screening } from "../lib.ts";
 
 // 映画ランド(eigaland)のチケットシステムを使う館の共通処理。日付ごとにJSONが返る
 type Show = { startTime: string; endTime: string; screenName?: string };
-type Item = { movieDetail: { movieName: string }; houseList: { houseName: string; showList: Show[] }[] };
+type Item = { movieDetail: { movieName: string; directors?: string[] }; houseList: { houseName: string; showList: Show[] }[] };
 
 export async function eigalandDays(urlForDate: (date: string) => string, today: string, days = 14): Promise<Screening[]> {
   const out: Screening[] = [];
@@ -20,6 +20,7 @@ export async function eigalandDays(urlForDate: (date: string) => string, today: 
             start: s.startTime.slice(11, 16),
             end: s.endTime?.slice(11, 16),
             title: it.movieDetail.movieName.replace(/　/g, " "),
+            director: it.movieDetail.directors?.map((d) => d.trim()).filter(Boolean).join("、") || undefined,
           });
         }
       }

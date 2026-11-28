@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-import { fetchText, hhmm, ymd, dateRange, z2h, clean, type Theater, type Screening } from "../lib.ts";
+import { fetchText, htmlToLines, directorsFromText, hhmm, ymd, dateRange, z2h, clean, type Theater, type Screening } from "../lib.ts";
 
 // schedule.html に作品ごとのブロック。作品名(.eiga-title)の近くの .day に
 //   「10/31(土)〜11/6(金)」「9：30～(終10：50)」 や 「11/5(木) 19：50～(終21：20)」
@@ -25,6 +25,7 @@ export const shimotakaido: Theater = {
         : undefined;
       for (const s of parseDayText(day.text(), today)) out.push({ ...s, title, program });
     });
+    directorsFromText(out, htmlToLines(html));
     return out;
   },
 };

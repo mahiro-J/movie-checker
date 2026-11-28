@@ -8,7 +8,7 @@ export const vera: Theater = {
   url: "http://www.cinemavera.com/schedule.html",
   async scrape({ today }) {
     const $ = await fetchDom(this.url);
-    const program = clean($(".programs .subject h2").first().text()) || undefined;
+    const program = clean($(".programs .subject h2").first().text() || $("h2").first().text()) || undefined;
     const out: Screening[] = [];
     let month = 0;
     $("table.pctime tr").each((_, tr) => {

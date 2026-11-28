@@ -24,9 +24,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run update
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # Morc阿佐ヶ谷の画像読み取り用
-      # 集めたデータ(と Morc の読み取り結果キャッシュ)を保存して、次回の失敗時の予備にする
+      # 集めたデータを保存して、次回の失敗時の予備にする
       - run: |
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
